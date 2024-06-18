@@ -1,0 +1,10 @@
+# FORECASTING-PRICE-AND-GROWTH-RATE-VOLATILITY
+FORECASTING PRICE AND GROWTH RATE VOLATILITY
+
+The strong re-emergence of the Covid-19 epidemic in 2021 had brought unprecedented challenges and significant impacts on the development of Vietnam's economy in general and businesses in particular, especially three sectors: Consumer, Textile and Aviation. In the report "Covid-19 impacts on Vietnam", Asean Security pointed out that these three industry groups are negatively impacted during the pandemic due to the influence of isolation and blockade policies. However, at the same time, this report also indicates that these industry groups will have positive prospects after the Covid-19 pandemic.
+
+These are probably positive signals for the stock prices of companies in these industries, which clearly reflect the company's business results and development potential. However, two factors that also strongly influence stock prices are market confidence and macroeconomic developments. Therefore, in a market full of uncertainty and fear with concerns about rising inflation and how the State Bank will respond to inflationary pressures, by ordinary inferences and predictions, we cannot say anything about the future price and yield of the shares of these companies, even if it is potential.
+
+To take a closer look and make forecasts related to these stock prices, I select three big companies in each industry group, namely Masan Group (Consumer), Century Synthetic Fiber Corporation (Textiles) and Vietnam Airlines (Aviation) and applied the ARIMA, ARCH, GARCH and CAPM models to provide forecasts regarding these three stocks.
+
+This study is divided into three main parts. Section 2 is the research methodology which provides research methods, theories, and general descriptions of the data used in the paper. Section 3 and 4 cover the application of the ARIMA and ARCH, GARCH models for forecasting the price and volatility of log returns for stocks of Masan Consumer Corporation. Section 5 provides the results and discussion on the dependence of the returns of the three stocks above on the market returns through the application of the CAPM model.

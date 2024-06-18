@@ -1,0 +1,142 @@
+rm(list = ls())
+library(stargazer)
+
+capm$rsandp = c(NA,100*diff(log(capm$SANDP)))
+capm$rford = c(NA,100*diff(log(capm$FORD)))
+capm$rge = c(NA,100*diff(log(capm$GE)))
+capm$rmsoft = c(NA,100*diff(log(capm$MICROSOFT)))
+capm$roracle = c(NA,100*diff(log(capm$ORACLE)))
+
+capm$USTB3M = capm$USTB3M/12
+capm$ersandp = capm$rsandp - capm$USTB3M
+capm$ermsoft = capm$rmsoft - capm$USTB3M
+capm$erford = capm$rford - capm$USTB3M
+
+par(cex.axis = 1.5, cex.lab = 1.5, lwd =  2)
+plot(capm$Date,capm$ersandp,type='l',col = "red",ylim=c(-100,100),ylab="")
+lines(capm$Date,capm$erford, lwd = 1)
+legend("bottomright",c("SP500","Ford"), col = c("red","black"),lty=1,cex = 1.5)
+
+plot(capm$ersandp,capm$erford,pch=19)
+
+lm_capm = lm(erford ~ ersandp, data = capm)
+summary(lm_capm)
+
+stargazer(lm_capm,type="text",
+          dep.var.labels=c("FORD"),
+          covariate.labels=c("Market - S&P 500" ), out="models.txt")
+
+library(car)
+linearHypothesis(lm_capm,c("ersandp=1"))
+linearHypothesis(lm_capm,hypothesis.matrix = diag(2),rhs = c(1,1))
+linearHypothesis(lm_capm,c("(Intercept)=1","ersandp=1"))
+
+
+library("quantreg")
+qreg = rq(erford ~ ersandp, data = capm)
+summary(qreg)
+qreg = rq(erford ~ ersandp, data = capm, tau=seq(0.1,0.9,0.1))
+plot(summary(qreg), level = 0.95)
+q10 = rq(erford ~ ersandp, data = capm, tau=0.1)
+q20 = rq(erford ~ ersandp, data = capm, tau=0.2)
+q30 = rq(erford ~ ersandp, data = capm, tau=0.3)
+q40 = rq(erford ~ ersandp, data = capm, tau=0.4)
+q50 = rq(erford ~ ersandp, data = capm, tau=0.5)
+q60 = rq(erford ~ ersandp, data = capm, tau=0.6)
+q70 = rq(erford ~ ersandp, data = capm, tau=0.7)
+q80 = rq(erford ~ ersandp, data = capm, tau=0.8)
+q90 = rq(erford ~ ersandp, data = capm, tau=0.9)
+anova(q10,q20,q30,q40,q50,q60,q70,q80,q90,joint = T)
+
+
+
+#Nhập data vào
+library(readxl)
+capm<- read_excel("C:/Users/ADMIN/Desktop/KTL2/DATA.xlsx")
+View(capm)
+
+capm$rMSN = c(NA,100*diff(log(capm$MSN)))
+capm$rSTK = c(NA,100*diff(log(capm$STK)))
+capm$rHVN = c(NA,100*diff(log(capm$HVN)))
+
+capm$rVNI = c(NA,100*diff(log(capm$VNI)))
+
+capm$GVB = capm$GVB/365
+
+capm$erMSN = capm$rMSN - capm$GVB
+capm$erSTK = capm$rSTK - capm$GVB
+capm$erHVN = capm$rHVN - capm$GVB
+
+capm$erVNI=capm$rVNI -capm$GVB
+
+
+par(cex.axis = 1.5, cex.lab = 1.5, lwd =  2)
+plot(capm$Date,capm$erVNI,type='l',col = "red",ylim=c(-10,10),ylab="")
+lines(capm$Date,capm$erMSN, lwd = 1)
+legend("bottomright",c("VNI","MSN"), col = c("red","black"),lty=1,cex = 1.5)
+
+plot(capm$erVNI,capm$erMASAN,pch=19)
+
+#Code new panel data 
+library(readxl)
+capm<- read_excel("C:/Users/ADMIN/Desktop/KTL2/DATA.xlsx")
+View(capm)
+attach(capm)
+#Pooled OLS
+summary(lm(erprice~erVNI))
+OLS2<-lm(erprice~erVNI)
+
+feild<-capm$field
+length(feild) 
+
+#dummy variable model 
+library(car)
+summary(lm(erprice~erVNI+factor(feild)-1, data = capm))
+DVLS2<-lm(erprice~erVNI+factor(feild)-1, data = capm)
+p3hat2 <- DVLS2$fitted
+scatterplot(erprice ~ erVNI|feild, smooth = FALSE)
+abline(lm(erprice~erVNI),lwd=5, col="black")
+
+#FEM
+library(plm)
+FEM2 <- plm(erprice ~ erVNI, data = capm ,index=c("field", "Date"), model="within")	
+summary(FEM2)
+fixef(FEM2)
+
+pFtest(FEM2, OLS2)
+
+#REM
+REM2 <- plm(erprice ~ erVNI, data = capm,index=c("field", "Date"), model="random")	
+summary(REM2)
+phtest(FEM2, REM2)
+
+
+
+library(readxl)
+capm<- read_excel("C:/Users/ADMIN/Desktop/KTL2/DATA.xlsx")
+View(capm)
+capm$rDBC = c(NA,100*diff(log(capm$MWG)))
+capm$rVNI = c(NA,100*diff(log(capm$VNI)))
+capm$GVB = capm$GVB/365
+capm$erDBC = capm$rDBC - capm$GVB
+capm$erVNI = capm$rVNI - capm$GVB
+
+lm_capm = lm(erMSN~ erVNI, data = capm)
+summary(lm_capm)
+
+
+
+#Code new panel data 
+library(readxl)
+capm<- read_excel("C:/Users/ADMIN/Desktop/KTL2/DATA.xlsx")
+View(capm)
+attach(capm)
+
+lm_capm = lm(erMSN~ erVNI + 0, data = capm)
+summary(lm_capm)
+
+lm_capm = lm(erHVN~ erVNI + 0 , data = capm)
+summary(lm_capm)
+
+lm_capm = lm(erSTK~ erVNI +0 , data = capm)
+summary(lm_capm)

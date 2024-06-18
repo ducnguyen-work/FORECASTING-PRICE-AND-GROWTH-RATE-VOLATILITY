@@ -1,0 +1,142 @@
+#ASSIGNMENT TEST
+
+#Nhập data vào
+library(readxl)
+DATA_Copy <- read_excel("C:/Users/ADMIN/Desktop/KTL2/DATA_Copy.xlsx")
+View(DATA_Copy)
+data<- ts(DATA_Copy, start=c(1,1), frequency = 1)
+
+data1<- ts(DATA_Copy, start=c(1,1), end = c(391,1), frequency = 1)
+valid<-data1[382:391,'QNS']
+lr<-data1[382:391,'LR']
+gr<-data1[382:391,'GR']
+stock<-data[1:281,'QNS']
+
+stock<-(diff(stock))
+
+acf(stock)
+pacf(stock)
+
+first.diff.of.MSN<-(diff(stock))
+plot.ts(stock)
+
+acf(first.diff.of.MSN)
+pacf(first.diff.of.MSN)
+
+#kiểm định unit root
+
+library(urca)
+summary(ur.df(stock,type="none",lag=0))
+summary(ur.df(stock,type="drift",lag=0))
+summary(ur.df(stock,type = "trend",lag = 0))
+#summary(ur.df(stock,type = "trend",selectlags = "AIC"))
+
+#Tính lag, lead, seq along time cho biến stock
+library(Hmisc)
+stock.l1<-Lag(stock,1)
+stock.lead1<-Lag(stock,-1)
+data1<-data.frame(stock,stock.l1,stock.lead1)
+data1
+
+time <-seq_along(stock)
+summary(time)
+
+plot(time,stock)
+abline(lm(stock~time))
+reg<-lm(stock~time)
+summary(lm(stock~time))
+
+wn<-rnorm(200,0,1)
+ts(wn, start=1,frequency = 1)
+acf(Wn)
+
+#forecast arima 
+
+library(forecast)
+stock<-data[,'QNS']
+reg.stock.arima511 <- Arima(stock, order = c(1,1,2), include.constant = TRUE)
+autoplot(reg.stock.arima511)
+
+summary(reg.stock.arima511)
+checkresiduals(reg.stock.arima511)
+
+cpif.arima511<-forecast(reg.stock.arima511,h=10)
+cpif.arima511
+cpif.arima511$mean
+
+autoplot(cpif.arima511)
+
+# arch & garch 
+ts.plot(stock)
+
+library(tseries)
+library(FinTS)
+stock.d3<-stock-mean(stock)
+ts.plot(stock.d3^2)
+pacf(stock.d3)
+
+summary(garch01 <- garch(stock.d3, order = c(0,1)))
+summary(garch02 <- garch(stock.d3, order = c(0,2)))
+summary(garch11 <- garch(stock.d3, order = c(1,1)))
+summary(garch12 <- garch(stock.d3, order = c(1,2)))
+summary(garch21 <- garch(stock.d3, order = c(2,1)))
+
+ArchTest(stock, lags = 1, demean = TRUE)
+ArchTest(stock, lags = 2, demean = TRUE)
+ArchTest(stock, lags = 3, demean = TRUE)
+
+
+
+#Choose Garch (1,1)
+#Unconditional variance
+unconditional.var=garch01$coef[1]/(1-garch11$coef[2]-garch11$coef[3])
+unconditional.var
+sqrt(unconditional.var)
+#unconditional.var=0.00342
+
+#Log return
+library(Hmisc)
+
+stock<-data[,'QNS']
+r1.stock<-(stock-Lag(stock,1))/Lag(stock,1)*100
+stock<-r1.stock[2:length(stock)]
+growth.rate.of.MSN<-r1.stock[2:length(stock)]
+
+acf(growth.rate.of.MSN)
+pacf(growth.rate.of.MSN)
+
+stock<-data[,'QNS']
+lr.stock<-log(stock/Lag(stock,1))
+stock<-lr.stock[2:length(lr.stock)]
+
+log.return.of.MSN<-lr.stock[2:length(lr.stock)]
+
+acf(log.return.of.MSN)
+pacf(log.return.of.MSN)
+
+library(forecast)
+reg.stock.arima511 <- arima(stock, order = c(2,0,1))
+autoplot(reg.stock.arima511)
+BIC(reg.stock.arima511)
+summary(reg.stock.arima511)
+checkresiduals(reg.stock.arima511)
+
+forecast(reg.stock.arima511,h=10)
+
+#Forecast testing
+library("Metrics")
+valid<-data1[382:391,'QNS']
+lr<-data1[382:391,'LR']
+gr<-data1[382:391,'GR']
+
+mae(valid,cpif.arima511$mean)
+rmse(valid,cpif.arima511$mean)
+mape(valid,cpif.arima511$mean)
+
+mae(valid,lr)
+rmse(valid,lr)
+mape(valid,lr)
+
+mae(valid,gr)
+rmse(valid,gr)
+mape(valid,gr)
